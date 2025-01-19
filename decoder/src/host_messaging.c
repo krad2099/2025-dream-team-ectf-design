@@ -103,7 +103,9 @@ int write_bytes(const void *buf, uint16_t len, bool should_ack) {
  * 
  *  @return 0 on success. A negative value on error.
 */
-int write_hex(msg_type_t type, const void *buf, size_t len) {
+int write_hex(msg_type_t type, const void *buf, size_t len, uint16_t buffer_size) {
+
+
     msg_header_t hdr;
     int i;
 
@@ -138,7 +140,11 @@ int write_hex(msg_type_t type, const void *buf, size_t len) {
  * 
  *  @return 0 on success. A negative value on failure.
 */
-int write_packet(msg_type_t type, const void *buf, uint16_t len) {
+int write_packet(msg_type_t type, const void *buf, uint16_t len, uint16_t buffer_size) {
+    if (len > buffer_size) {
+        return -1;
+    }
+
     msg_header_t hdr;
     int result;
 
@@ -175,7 +181,7 @@ int write_packet(msg_type_t type, const void *buf, uint16_t len) {
  * 
  *  @return 0 on success, a negative number on failure
 */
-int read_packet(msg_type_t* cmd, void *buf, uint16_t *len) {
+int read_packet(msg_type_t* cmd, void *buf, uint16_t *len, uint16_t buffer_size) {
     msg_header_t header = {0};
 
     // cmd must be a valid pointer
@@ -188,6 +194,11 @@ int read_packet(msg_type_t* cmd, void *buf, uint16_t *len) {
     *cmd = header.cmd;
 
     if (len != NULL) {
+        if (header.len > buffer_size) {
+            len = NULL;
+            return -1;
+        }
+        
         *len = header.len;
     }
 

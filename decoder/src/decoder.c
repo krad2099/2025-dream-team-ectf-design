@@ -197,7 +197,7 @@ int list_channels() {
     len = sizeof(resp.n_channels) + (sizeof(channel_info_t) * resp.n_channels);
 
     // Success message
-    write_packet(LIST_MSG, &resp, len);
+    write_packet(LIST_MSG, &resp, len, sizeof(resp));
     return 0;
 }
 
@@ -243,7 +243,7 @@ int update_subscription(pkt_len_t pkt_len, subscription_update_packet_t *update)
     flash_simple_erase_page(FLASH_STATUS_ADDR);
     flash_simple_write(FLASH_STATUS_ADDR, &decoder_status, sizeof(flash_entry_t));
     // Success message with an empty body
-    write_packet(SUBSCRIBE_MSG, NULL, 0);
+    write_packet(SUBSCRIBE_MSG, NULL, 0, 0);
     return 0;
 }
 
@@ -272,7 +272,7 @@ int decode(pkt_len_t pkt_len, frame_packet_t *new_frame) {
         print_debug("Subscription Valid\n");
         /* The reference design doesn't need any extra work to decode, but your design likely will.
         *  Do any extra decoding here before returning the result to the host. */
-        write_packet(DECODE_MSG, new_frame->data, frame_size);
+        write_packet(DECODE_MSG, new_frame->data, frame_size, sizeof(output_buf));
         return 0;
     } else {
         STATUS_LED_RED();
@@ -388,7 +388,7 @@ int main(void) {
 
         STATUS_LED_GREEN();
 
-        result = read_packet(&cmd, uart_buf, &pkt_len);
+        result = read_packet(&cmd, uart_buf, &pkt_len, sizeof(uart_buf));
 
         if (result < 0) {
             STATUS_LED_ERROR();

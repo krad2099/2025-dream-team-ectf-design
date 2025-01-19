@@ -51,7 +51,7 @@ typedef struct {
  * 
  *  @return 0 on success. A negative value on error.
 */
-int write_hex(msg_type_t type, const void *buf, size_t len);
+int write_hex(msg_type_t type, const void *buf, size_t len, uint16_t buffer_size);
 
 /** @brief Send a message to the host, expecting an ack after every 256 bytes.
  * 
@@ -61,7 +61,7 @@ int write_hex(msg_type_t type, const void *buf, size_t len);
  * 
  *  @return 0 on success. A negative value on failure.
 */
-int write_packet(msg_type_t type, const void *buf, uint16_t len);
+int write_packet(msg_type_t type, const void *buf, uint16_t len, uint16_t buffer_size);
 
 /** @brief Reads a packet from console UART.
  * 
@@ -71,16 +71,17 @@ int write_packet(msg_type_t type, const void *buf, uint16_t len);
  * 
  *  @return 0 on success, a negative number on failure
 */
-int read_packet(msg_type_t* cmd, void *buf, uint16_t *len);
+int read_packet(msg_type_t* cmd, void *buf, uint16_t *len, uint16_t buffer_size);
+
 
 // Macro definitions to print the specified format for error messages
-#define print_error(msg) write_packet(ERROR_MSG, msg, strlen(msg))
+#define print_error(msg) write_packet(ERROR_MSG, msg, strlen(msg), strlen(msg))
 
 // Macro definitions to print the specified format for debug messages
-#define print_debug(msg) write_packet(DEBUG_MSG, msg, strlen(msg))
-#define print_hex_debug(msg, len) write_hex(DEBUG_MSG, msg, len)
+#define print_debug(msg) write_packet(DEBUG_MSG, msg, strlen(msg), strlen(msg))
+#define print_hex_debug(msg, len) write_hex(DEBUG_MSG, msg, len, len)
 
 // Macro definitions to write ack message
-#define write_ack() write_packet(ACK_MSG, NULL, 0)
+#define write_ack() write_packet(ACK_MSG, NULL, 0, 0)
 
 #endif
