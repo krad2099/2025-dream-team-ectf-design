@@ -35,14 +35,15 @@ def test_encoder(args):
     encoder = Encoder(args.secrets.read())
     nframes = math.ceil(args.test_size / args.frame_size)
     logger.info(f"Generating frames ({nframes:,} {args.frame_size}B frames)...")
-    frames = [
-        Frame(
+    timestamp = 0
+    frames = []
+    for _ in range(nframes):
+        timestamp = max(timestamp + 1, time.time_ns() // 1000)  # generate microsecond timestamp
+        frames.append(Frame(
             random.choice(args.channels),  # pick random channel
             random.randbytes(args.frame_size),  # generate random frame
-            time.time_ns() // 1000,  # generate microsecond timestamp
-        )
-        for _ in range(nframes)
-    ]
+            timestamp
+        ))
 
     logger.info("Running stress test...")
     encoded_frames = []
@@ -109,6 +110,8 @@ def test_decoder(args):
             logger.error(f"Errored on frame {frame}!")
             raise e
     total = time.perf_counter() - start
+    print("total time " + repr(total))
+    print("total size " + repr(total_frame_len))
 
     # Check threshold
     kb_threshold = args.threshold / 1000
