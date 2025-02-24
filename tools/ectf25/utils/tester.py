@@ -213,7 +213,10 @@ def main():
 
     # read secrets file
 
-    encoder = Encoder(args.secrets.read())
+    # encoder = Encoder(args.secrets.read())
+    secrets_data = json.loads(args.secrets.read())
+    encryption_key = secrets_data["encryption_key"]
+    encoder = Encoder(json.dumps(secrets_data), encryption_key)
 
     raw_frames = []
     encoded_frames = []
